@@ -22,7 +22,7 @@ def about():
 @app.route('/articles')
 def articles():
     return render_template('/articles.html', articles=Articles)
-
+#hello
 
 @app.route('/article/<string:id>')
 def article(id):
@@ -47,7 +47,8 @@ def register():
     if request.method == 'POST' and form.validate():
         return render_template('register.html')
     return render_template('register.html', form=form)
-
+def test():
+    pass
 
 if __name__ == '__main__':
     app.run()
