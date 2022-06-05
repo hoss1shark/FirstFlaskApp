@@ -3,12 +3,20 @@ from flask import Flask, request, render_template
 from data import Articles
 from wtforms import Form, TextAreaField, BooleanField, StringField, PasswordField, validators
 from flask_mysqldb import MySQL
+from passlib.hash import sha256_crypt
+
 app = Flask(__name__)
 Articles = Articles()
 #Configuring Mysql
 
 app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'mypass'
+app.config['MYSQL_DB'] = 'FirstFlaskApp'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
+#inti MySQL
+mysql =MySQL(app)
 @app.route('/')
 def hello_world():  # put application's code here
     return render_template('/Home.html')
@@ -22,7 +30,7 @@ def about():
 @app.route('/articles')
 def articles():
     return render_template('/articles.html', articles=Articles)
-#hello
+
 
 @app.route('/article/<string:id>')
 def article(id):
@@ -32,7 +40,7 @@ def article(id):
 # setting registerion form
 class RegisertionForm(Form):
     name = StringField('Name', [validators.length(min=1, max=50)])
-    username = StringField('UserName', [validators.length(min=4, max=50)])
+    username = StringField('Username', [validators.length(min=4, max=50)])
     email = StringField('Email Address', [validators.length(min=6, max=50)])
     password = PasswordField(' Password', [
         validators.DataRequired(),
@@ -45,10 +53,20 @@ class RegisertionForm(Form):
 def register():
     form = RegisertionForm(request.form)
     if request.method == 'POST' and form.validate():
-        return render_template('register.html')
+        name = form.name.data
+        username = form.username.data
+        email = form.email.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+        #create dbcursor
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO users(name,username,email,password) values (%s,%s,%s,%s)",(name,username,email,password))
+        #commit
+        mysql.connection.commit()
+        flask.flash("You have successfully registered in our wonderful App",'sucess')
     return render_template('register.html', form=form)
-def test():
-    pass
+
 
 if __name__ == '__main__':
+    app.secret_key = '12312312'
+    app.debug = True
     app.run()
