@@ -59,7 +59,7 @@ def article(id):
 
 
 # setting addarticle form
-class AddArticleForm(Form):
+class ArticleForm(Form):
     title = StringField('Title', [validators.length(min=1, max=50)])
     body = TextAreaField('Body', [validators.length(min=4)])
 
@@ -156,11 +156,11 @@ def logout():
     flash("You have logged out sucessfully", 'success')
     return redirect(url_for('login'))
 
-
+#add article
 @app.route('/addarticle', methods=['GET', 'POST'])
 @isLoggedin
 def addArticle():
-    form = AddArticleForm(request.form)
+    form = ArticleForm(request.form)
     if request.method == 'POST' and form.validate():
         cur = mysql.connection.cursor()
         title = form.title.data
@@ -169,10 +169,45 @@ def addArticle():
         cur.execute("INSERT into articles(title,body,auther) value(%s,%s,%s)", (title, body, auther))
         mysql.connection.commit()
         cur.close()
-        flash("Article add successfulyy", 'success')
+        flash("Article add successfully", 'success')
         return redirect(url_for('dashboard'))
     return render_template('add_article.html', form=form)
+#Edit article
+@app.route('/editarticle/<string:id>', methods=['GET', 'POST'])
+@isLoggedin
+def editArticle(id):
+    cur = mysql.connection.cursor()
+    result = cur.execute("select * from articles where id=%s ",[id])
+    if result > 0 :
+        article = cur.fetchone()
+        cur.close()
+    form = ArticleForm(request.form)
+    form.title.data = article['title']
+    form.body.data = article['body']
+    if request.method == 'POST' and form.validate():
+        cur = mysql.connection.cursor()
+        title = request.form['title']
+        body = request.form['body']
+        cur.execute("update articles set title=%s,body=%s where id=%s",(title,body,id))
+        mysql.connection.commit()
+        cur.close()
+        flash("Article edited successfully", 'success')
+        return redirect(url_for('dashboard'))
+    return render_template('edit_article.html', form=form)
 
+#delete article
+@app.route('/deletearticle/<string:id>')
+@isLoggedin
+def deleteArticle(id):
+    cur= mysql.connection.cursor()
+    result = cur.execute("delete from articles where id =%s",id)
+    if result == 1:
+        mysql.connection.commit()
+        cur.close()
+        flash("Article deleted successfully", 'success')
+        return redirect(url_for('dashboard'))
+    print("error happend")
+    return redirect(url_for('dashboard'))   
 
 if __name__ == '__main__':
     app.run()
