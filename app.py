@@ -8,11 +8,14 @@ from passlib.hash import sha256_crypt
 app = Flask(__name__)
 Articles = Articles()
 #Configuring Mysql
-
+app.config.update(
+    TESTING=True,
+    SECRET_KEY='192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf'
+)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'mypass'
-app.config['MYSQL_DB'] = 'FirstFlaskApp'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'myflaskapp'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 #inti MySQL
@@ -67,6 +70,4 @@ def register():
 
 
 if __name__ == '__main__':
-    app.secret_key = '12312312'
-    app.debug = True
     app.run()
