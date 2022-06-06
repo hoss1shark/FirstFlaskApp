@@ -1,7 +1,11 @@
 {% extends 'layout.html' %}
 {% block body %}
     <div class="jumbotron text-center">
-        <h1>Welcome to flask app</h1>
+        <h1>Welcome to the website</h1>
         <p class ="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, aspernatur delectus deserunt eaque earum esse expedita explicabo id minima minus modi officia pariatur quae reiciendis sed sequi tempore temporibus voluptatem.</p>
+        {% if session.logged_in == NULL %}
+            <a href="/login" class="btn btn-success btn-lg">Login</a>
+            <a href="/login" class="btn btn-primary btn-lg">Register</a>
+        {% endif %}
     </div>
 {% endblock body %}
