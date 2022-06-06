@@ -13,10 +13,16 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/aboutus">About</a>
-      </li>
-        <li class="navbar-right" >
-        <a class="nav-link" href="/register">Register</a>
-      </li>
+        </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      {% if session.logged_in %}
+          <li><a href="/logout">Logout </a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+      {% else %}
+          <li><a href="/register">Register </a></li>
+          <li><a href="/login">Login</a></li>
+      {% endif  %}
     </ul>
   </div>
 </nav>
