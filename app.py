@@ -1,7 +1,7 @@
 import flask
 from flask import Flask, request, render_template,flash,session,redirect,url_for
 from data import Articles
-from wtforms import Form, StringField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField,PasswordField, validators
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -42,6 +42,11 @@ def articles():
 def article(id):
     return render_template('/article.html', id=id)
 
+# setting addarticle form
+class AddArticleForm(Form):
+    title = StringField('Title', [validators.length(min=1, max=50)])
+    body = TextAreaField('Body', [validators.length(min=4)])
+
 
 # setting registerion form
 class RegisertionForm(Form):
@@ -55,7 +60,7 @@ class RegisertionForm(Form):
     confirm = PasswordField('Repeat Password')
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register',methods=['GET', 'POST'])
 def register():
     form = RegisertionForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -120,6 +125,21 @@ def logout():
     flash("You have logged out sucessfully",'sucess')
     return redirect(url_for('login'))
 
+@app.route('/addarticle',methods=['GET','POST'])
+@isLoggedin
+def addArticle():
+    form = AddArticleForm(request.form)
+    if request.method == 'POST' and form.validate():
+        cur = mysql.connection.cursor()
+        title = form.title.data
+        body = form.body.data
+        auther = session['username']
+        cur.execute("INSERT into articles(title,body,auther) value(%s,%s,%s)",(title,body,auther))
+        mysql.connection.commit()
+        cur.close()
+        flash("Article add successfulyy",'sucess')
+        return redirect(url_for('dashboard'))
+    return render_template('add_article.html',form=form)
 
 if __name__ == '__main__':
     app.run()
