@@ -207,7 +207,7 @@ def deleteArticle(id):
         flash("Article deleted successfully", 'success')
         return redirect(url_for('dashboard'))
     print("error happend")
-    return redirect(url_for('dashboard'))   
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     app.run()
